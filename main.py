@@ -1,4 +1,4 @@
-from RSA import inverse_dico, num_condition, even, find_prime
+from RSA import alice_decrypt
 
 
 table_criptage = {
@@ -20,4 +20,4 @@ table_criptage = {
 
 
 if __name__ == "__main__":
-    table_decryptage = inverse_dico(table_criptage)
+    alice_decrypt()

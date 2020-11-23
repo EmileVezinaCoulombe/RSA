@@ -336,6 +336,3 @@ def alice_decrypt(len_text=70):
         message_decrypt += table_decriptage[three_digit(mod_decrypt)]
 
     print_justify(f'Le message reçu : {message_decrypt}', len_text)
-
-
-alice_decrypt()
