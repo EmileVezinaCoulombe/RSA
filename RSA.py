@@ -2,7 +2,7 @@ import random
 import textwrap
 
 
-table_criptage = {
+table_cryptage = {
                     'a': '001', 'b': '002', 'c': '003', 'd': '004', 'e': '005', 'f': '006', 'g': '007', 'h': '008',
                     'i': '009', 'j': '010', 'k': '011', 'l': '012', 'm': '013', 'n': '014', 'o': '015', 'p': '016',
                     'q': '017', 'r': '018', 's': '019', 't': '020', 'u': '021', 'v': '022', 'w': '023', 'x': '024',
@@ -31,6 +31,9 @@ def inverse_dico(dico):
     for keys in dico:
         inv_dico[dico[keys]] = keys
     return inv_dico
+
+
+table_decryptage = inverse_dico(table_cryptage)
 
 
 def num_condition(number):
@@ -132,6 +135,14 @@ def gcd(number1, number2):
         remainder = number1 % number2   #3-
         number1, number2 = number2, remainder
     return number1
+
+
+def base107(num):
+    if num > 107:
+        num = num % 107
+    else:
+        return num
+    return base107(num)
 
 
 def period(arg, n):
@@ -264,24 +275,24 @@ def alice_create_clef(len_text=70):
     phi_n = ((prime_1 - 1)*(prime_2 - 1))
     print_justify(f"Phi_n = (prime1-1)(prime2-1) = {phi_n}", len_text, True)
     e_choices = []
-    for i in range(3, phi_n):
+    i = 3
+    while i < phi_n:
         if gcd(i, phi_n) == 1:
-            e_choices.append(i)
-    if len(e_choices) < 2:
-        e = e_choices[0]
-    e = e_choices[0] # random.randint(0, len(e_choices)-1)
-    # d*e(mod(phi_n))=1 => d=k*(phi_n)-1
-    # (ici k soit 2 ou 3 pour éviter trop grand nombre)
-    d_choise = []
-    k = 0
-    while len(d_choise) < 3:
-        k += 1
-        d_intermediate = int(((k * phi_n) + 1)/e)
-        if ((d_intermediate*e) % phi_n) == 1:
-            d_choise.append(d_intermediate)
+            if gcd(i, N) == 1:
+                e_choices.append(i)
+        i += 1
+        if i > N/2:
+            i = phi_n
+    e = e_choices[-1]
 
-    d = d_choise[random.randint(0, 2)]
-    print_justify(f"Choix de d => d*e % phi_n = 1 : {d_choise}", len_text)
+    # d*e(mod(phi_n))=1 => d=k*(phi_n)-1
+    d_choises = []
+    for k in range(1,3):
+        d_choises.append(int((k * phi_n) - 1))
+
+    d = d_choises[-1]
+    print_justify(f"Choix de d => d*e % phi_n = 1 : {d_choises}", len_text, True)
+    print_justify(f"Choix de e => copremier avec N et phi_n dans ]1, phi_n[ : {e_choices}", len_text)
     print_justify(f"La clé publique (e, N) = ({e}, {N})", len_text, True)
     print_justify(f"La clé privée est (d, N) = ({d}, {N})", len_text)
 
@@ -304,7 +315,7 @@ def bob_message(len_text=70):
     crypted_text = []
 
     for i in message:
-        cyber_text.append(int(table_criptage[i]))
+        cyber_text.append(int(table_cryptage[i]))
 
     print('cyber_text : ', cyber_text)
     for k in cyber_text:
@@ -330,9 +341,9 @@ def alice_decrypt(len_text=70):
     print_justify(context, len_text)
 
     for number in crypted_message:
-        mod_decrypt = ((int(number)**d) % N)
-        if mod_decrypt > 107:
-            mod_decrypt %= 107
-        message_decrypt += table_decriptage[three_digit(mod_decrypt)]
+        mod_decrypt = base107(((int(number)**d) % N))
+        if mod_decrypt == 0:
+            mod_decrypt = 1
+        message_decrypt += table_decryptage[three_digit(mod_decrypt)]
 
     print_justify(f'Le message reçu : {message_decrypt}', len_text)
