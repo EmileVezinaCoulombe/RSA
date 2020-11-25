@@ -178,7 +178,7 @@ def gen_e_d(phi, bit_lenght = 1, e = 2):
     d = mod_inverse(e, phi)
     e = gen_pseudo_e(phi, bit_lenght, e)
     if gcd(e, phi) == 1 and e != d and d != -1 and e != -1:
-        return e, d
+        return (e, d)
     if d == -1 and e == -1:
         raise Exception("La création de e et d est imposible, choisisez d'autres p et q")
     return gen_e_d(phi, bit_lenght, e+1)
@@ -197,9 +197,10 @@ def gen_keys(p, q, bit_lenght = 1):
     phi = gen_phi(p, q)
     try:
         e, d = gen_e_d(phi, bit_lenght)
+        return ((e, n), (d, n), phi)
     except:
         print("La création de e et d est imposible, choisisez d'autres p et q")
-    return ((e, n), (d, n))
+
 
 
 def encrypt(message, public_key):
@@ -213,7 +214,7 @@ def encrypt(message, public_key):
         ex: ['32', '103', '98']
     """
     e, n = public_key
-    retourne [pow(ord(lettre), e, n) for lettre in message]
+    return [pow(ord(lettre), e, n) for lettre in message]
 
 
 def decrypt(msg_crypt, private_key):
@@ -229,30 +230,6 @@ def decrypt(msg_crypt, private_key):
     d, n = private_key
     return [char(pow(crypt, d, n) for crypt in msg_crypt)]
 
-
-def show_encrypt(liste):
-    """
-    Fonction regroupe le message crypté.
-    Prend en agrument le message crypter (list, voir fonc encrypt).
-        chr retourne le str d'une valeur numérique(unicode)  
-            ex : char(97) = a
-    Retourne le message crypter.
-        ex: 'Hello'
-    """
-    message = ''
-    for number in liste:
-        message += char(liste[number])
-    return message
-
-
-def show_decrypt(liste):
-    """
-    Fonction regroupe le message décrypté.
-    Prend en agrument le message décrypter (list, voir fonc encrypt).
-    Retourne le message décrypter.
-        ex: 'Hello'
-    """
-    return (''.join(liste))
 
 
 def justify(text, width=70, sep=' ', justify_last_line=False):
@@ -310,101 +287,3 @@ def justify(text, width=70, sep=' ', justify_last_line=False):
                 # Resets counter to start at word before final space, if we've stepped through the list once
                 counter = -2
     return new_text
-
-
-def print_justify(text, width=70, close=False, sep=' ', justify_last_line=False):
-    """
-    Fonction imprime dans le terminale.
-    Prend en agrument une liste.
-        Si l'argument close == False, ajoute une ligne vide 
-    Retourne Rien.
-    """
-    new_text = justify(text, width, sep, justify_last_line)
-    if not close:
-        new_text += " "
-    for line in new_text:
-        print(line)
-
-
-
-
-def alice_create_clef(len_text=70):
-    context = "Bob veut envoyer un message d\'amour à Alice sans que personne " \
-                "ne puisse intercepter leurs ferveurs. Alice doit donc créer " \
-                "une clé privée, pour lire les messages cryptés de Bob, et une " \
-                "clé publique qu\'elle laissera sur son casier. Bob utilisera la " \
-                "clé publique pour crypter son message. Pour créer les clés, Alice " \
-                "doit choisir deux grands nombres premiers."
-
-    prime_context = "Choisissez deux nombres (entier entre 2 et 500) le programme " \
-                    "trouvera le prochain nombre qui est premier."
-
-    print_justify(context, len_text)
-    print_justify(prime_context, len_text)
-    text_number_1 = input("Premier nombre : ")
-    prime_1 = find_prime(number_1)
-    text_number_2 = input("Deuxième nombre : ")
-    prime_2 = find_prime(number_2)
-    print_justify(f"Le couple de nombre premier (p, q) est : {prime_1}, {prime_2}", len_text, True)
-    
-    print_justify(f"Produit des deux nombres premiers nommés N = {N}", len_text, True)
-    print_justify(f"Phi_n = (prime1-1)(prime2-1) = {phi_n}", len_text, True)
-
-    print_justify(f"Choix de d => d*e % phi_n = 1 : {d_choises}", len_text, True)
-    print_justify(f"Choix de e => copremier avec N et phi_n dans ]1, phi_n[ : {e_choices}", len_text)
-    print_justify(f"La clé publique (e, N) = ({e}, {N})", len_text, True)
-    print_justify(f"La clé privée est (d, N) = ({d}, {N})", len_text)
-
-    return [[e, N], [d, N]]
-
-
-def bob_message(len_text=70):
-    clef = alice_create_clef(len_text)
-    N = clef[0][1]
-    e = clef[0][0]
-    d = clef[1][0]
-
-    context_salutation = 'Bonjour Bob,'
-    context_instruction = 'Écrivez votre message à envoyer à Alice. Je me chargerai de le crypter.'
-    print_justify(context_salutation, len_text, True)
-    print_justify(context_instruction, len_text)
-    message = input('Message d\'amour : ')
-
-    cyber_text = []
-    crypted_text = []
-
-    for i in message:
-        cyber_text.append(int(table_cryptage[i]))
-
-    print('cyber_text : ', cyber_text)
-    for k in cyber_text:
-        mod_crypt = (k**e) % N
-        if not mod_crypt:
-            mod_crypt = 82
-            if not (82 % N):
-                mod_crypt = 79
-        crypted_text.append(mod_crypt)
-
-    print('crypted_text : ', crypted_text)
-
-    return (crypted_text, d, N)
-
-
-def alice_decrypt(len_text=70):
-    crypted_message, d, N = bob_message(len_text)
-
-    message_decrypt = ""
-    context = 'Alice a reçu un message dans sa case. ' \
-              'Elle le passe dans son programme de décryption'
-
-    print_justify(context, len_text)
-
-    for number in crypted_message:
-        mod_decrypt = base107(((int(number)**d) % N))
-        if mod_decrypt == 0:
-            mod_decrypt = 1
-        message_decrypt += table_decryptage[three_digit(mod_decrypt)]
-
-    print_justify(f'Le message reçu : {message_decrypt}', len_text)
-
-

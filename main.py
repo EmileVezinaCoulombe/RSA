@@ -1,23 +1,79 @@
-from RSA import alice_decrypt
+from RSA import justify, find_prime, gen_keys, encrypt, decrypt
+
+class Terminal_display_setting:
+    def __init__(self, text, width=70, close=False, sep=' ', justify_last_line=False):
+        self.text = text
+        self.width = width
+        self.close = close
+        self.sep = sep
+        self.justify_last_line = justify_last_line
+    def __str__(self, close = False):
+        new_text = justify(self.text, self.width, self.sep, self.justify_last_line)
+        if not self.close:
+            new_text += " "
+        return self.print_justified(new_text)
+
+    def print_justified(self, text_list):
+        for ligne in text_list:
+            print(ligne)
+        return ''
 
 
-table_criptage = {
-                    'a': '001', 'b': '002', 'c': '003', 'd': '004', 'e': '005', 'f': '006', 'g': '007', 'h': '008',
-                    'i': '009', 'j': '010', 'k': '011', 'l': '012', 'm': '013', 'n': '014', 'o': '015', 'p': '016',
-                    'q': '017', 'r': '018', 's': '019', 't': '020', 'u': '021', 'v': '022', 'w': '023', 'x': '024',
-                    'y': '025', 'z': '026', 'A': '027', 'B': '028', 'C': '029', 'D': '030', 'E': '031', 'F': '032',
-                    'G': '033', 'H': '034', 'I': '035', 'J': '036', 'K': '037', 'L': '038', 'M': '039', 'N': '040',
-                    'O': '041', 'P': '042', 'Q': '043', 'R': '044', 'S': '045', 'T': '046', 'U': '047', 'V': '048',
-                    'W': '049', 'X': '050', 'Y': '051', 'Z': '052', '0': '053', '1': '054', '2': '055', '3': '056',
-                    '4': '057', '5': '058', '6': '059', '7': '060', '8': '061', '9': '062', ' ': '063', "'": '064',
-                    ':': '065', ';': '066', '.': '067', '<': '068', '>': '069', '«': '070', '»': '071', '%': '072',
-                    '=': '073', '-': '074', '+': '075', '/': '076', '\\': '077', '*': '078', '#': '079', '@': '080',
-                    '!': '081', '?': '082', '&': '083', '(': '084', ')': '085', '_': '086', '{': '087', '}': '088',
-                    '"': '089', ',': '090', '$': '091', '[': '092', ']': '093', 'é': '094', 'è': '095', 'ê': '096',
-                    'É': '097', 'È': '098', 'Ê': '099', 'à': '100', 'À': '101', 'ç': '102', 'Ç': '103', 'ù': '104',
-                    'Ù': '105', 'î': '106', 'Î': '107'
-                }
+context = "Bob veut envoyer un message d\'amour à Alice sans que personne " \
+            "ne puisse intercepter leurs ferveurs. Alice doit donc créer " \
+            "une clé privée, pour lire les messages cryptés de Bob, et une " \
+            "clé publique qu\'elle laissera sur son casier. Bob utilisera la " \
+            "clé publique pour crypter son message. Pour créer les clés, Alice " \
+            "doit choisir deux grands nombres premiers."
+prime_context = "Choisissez deux nombres (entier entre 2 et 500) le programme " \
+                "trouvera le prochain nombre qui est premier."
+text_number_1 = 'Votre premier nombre : '
+text_number_2 = 'Votre deuxième nombre : '
+context_salutation = 'Bonjour Bob,'
+context_instruction = 'Écrivez votre message à envoyer à Alice. '\
+                    'Je me chargerai de le crypter.'
+context_decrypt = 'Alice a reçu un message dans sa case. ' \
+                'Elle le passe dans son programme de décryption'
 
 
 if __name__ == "__main__":
-    alice_decrypt()
+    len_text = 70
+    context_justified = Terminal_display_setting(context)
+    prime_context_justified = Terminal_display_setting(prime_context)
+    context_salutation_justified = Terminal_display_setting(context_salutation)
+    context_instruction_justified = Terminal_display_setting(context_instruction)
+    context_decrypt_justified = Terminal_display_setting(context_decrypt)
+
+    print(context_justified)
+    print(prime_context_justified)
+    number_1 = input(text_number_1)
+    number_2 = input(text_number_2)
+
+    prime_1 = find_prime(number_1)
+    prime_2 = find_prime(number_2)
+    print(gen_keys(prime_1, prime_2))
+    public_key, private_key, phi = gen_keys(prime_1, prime_2)
+    e, n = public_key
+    d = private_key[0]
+
+    print(f"Le couple de nombre premier (p, q) est : {prime_1}, {prime_2}")
+    print(f"Produit des deux nombres premiers nommés N = {n}")
+    print(f"Phi_n = (prime1-1)(prime2-1) = {phi}")
+    print(f"d => d*e % phi_n = 1 : {d}")
+    print(f"e => copremier avec phi_n dans ]1, phi_n[ : {e}")
+    print(f"La clé publique (e, N) = {public_key}")
+    print(f"La clé privée est (d, N) = {private_key}")
+
+    print(context_salutation_justified)
+    print(context_instruction)
+    message = input('Message d\'amour : ')
+
+    message_crypté = encrypt(message, public_key)
+    text_crypté = ''.join(message_crypté)
+    message_décrypter = decrypt(message_crypté, private_key)
+    text_décrypté = ''.join(message_décrypter)
+
+    print(f'Le message envoyé : {text_crypté}')
+
+    print(context_decrypt_justified)
+    print(f'Le message reçu : {text_décrypté}')
