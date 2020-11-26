@@ -21,7 +21,7 @@ def num_condition(number):
         return [condition, message]
     if number >= 500:
         message.append("Nombre trop grand")
-    if number < 2:
+    if number < 20:
         message.append("Nombre trop petit")
     else:
         condition = True
@@ -122,15 +122,15 @@ def period(arg, n, exponent = 1,count = 1):
     return period(arg, n, exponent, count)
 
 
-def mod_inverse(e, phi):
+def mod_inverse(e, phi, n):
     """
     Fonction détermine l'inverse modulaire.
     Prend en agrument e, phi.
         trouve le multiple d pour que (e*d)%phi =1
     Retourne d.
     """
-    for d in range(1, phi):
-        if (e*d) % phi == 1:
+    for d in range(1, n):
+        if (e*d) % phi == 1 and d != e:
             return d
     return -1
 
@@ -167,7 +167,7 @@ def gen_pseudo_e(phi, e = 2, bit_lenght = 1):
     return gen_pseudo_e(phi, e+1, bit_lenght)
 
 
-def gen_e_d(phi, bit_lenght = 1, e = 2):
+def gen_e_d(n, phi, bit_lenght = 1, e = 2):
     """
     Fonction génaire un e et d.
     Prend en agrument e, phi et une longeure min en nombre de bit pour e.
@@ -175,8 +175,8 @@ def gen_e_d(phi, bit_lenght = 1, e = 2):
         si incapable de générer e et d lève une erreur 
     Retourne tuple (e, d).
     """
-    d = mod_inverse(e, phi)
     e = gen_pseudo_e(phi, bit_lenght, e)
+    d = mod_inverse(e, phi, n)
     if gcd(e, phi) == 1 and e != d and d != -1 and e != -1:
         return (e, d)
     if d == -1 and e == -1:
@@ -196,11 +196,10 @@ def gen_keys(p, q, bit_lenght = 1):
     n = p*q
     phi = gen_phi(p, q)
     try:
-        e, d = gen_e_d(phi, bit_lenght)
+        e, d = gen_e_d(n, phi, bit_lenght)
         return ((e, n), (d, n), phi)
     except:
-        print("La création de e et d est imposible, choisisez d'autres p et q")
-
+        raise Exception("La création de e et d est imposible, choisisez d'autres p et q")
 
 
 def encrypt(message, public_key):
@@ -228,8 +227,7 @@ def decrypt(msg_crypt, private_key):
         ex: ['H', 'e', 'l', 'l', 'o']
     """
     d, n = private_key
-    return [char(pow(crypt, d, n) for crypt in msg_crypt)]
-
+    return [chr(pow(crypt, d, n)) for crypt in msg_crypt]
 
 
 def justify(text, width=70, sep=' ', justify_last_line=False):

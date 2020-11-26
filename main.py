@@ -25,7 +25,7 @@ context = "Bob veut envoyer un message d\'amour à Alice sans que personne " \
             "clé publique qu\'elle laissera sur son casier. Bob utilisera la " \
             "clé publique pour crypter son message. Pour créer les clés, Alice " \
             "doit choisir deux grands nombres premiers."
-prime_context = "Choisissez deux nombres (entier entre 2 et 500) le programme " \
+prime_context = "Choisissez deux nombres (entier entre 20 et 500) le programme " \
                 "trouvera le prochain nombre qui est premier."
 text_number_1 = 'Votre premier nombre : '
 text_number_2 = 'Votre deuxième nombre : '
@@ -51,7 +51,6 @@ if __name__ == "__main__":
 
     prime_1 = find_prime(number_1)
     prime_2 = find_prime(number_2)
-    print(gen_keys(prime_1, prime_2))
     public_key, private_key, phi = gen_keys(prime_1, prime_2)
     e, n = public_key
     d = private_key[0]
@@ -62,15 +61,17 @@ if __name__ == "__main__":
     print(f"d => d*e % phi_n = 1 : {d}")
     print(f"e => copremier avec phi_n dans ]1, phi_n[ : {e}")
     print(f"La clé publique (e, N) = {public_key}")
-    print(f"La clé privée est (d, N) = {private_key}")
+    print(f"La clé privée est (d, N) = {private_key}\n")
 
     print(context_salutation_justified)
     print(context_instruction)
     message = input('Message d\'amour : ')
 
     message_crypté = encrypt(message, public_key)
-    text_crypté = ''.join(message_crypté)
+    print(message_crypté)
+    text_crypté = ''.join(str(message_crypté))
     message_décrypter = decrypt(message_crypté, private_key)
+    print(message_décrypter)
     text_décrypté = ''.join(message_décrypter)
 
     print(f'Le message envoyé : {text_crypté}')
