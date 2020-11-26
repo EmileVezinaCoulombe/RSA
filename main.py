@@ -68,10 +68,8 @@ if __name__ == "__main__":
     message = input('Message d\'amour : ')
 
     message_crypté = encrypt(message, public_key)
-    print(message_crypté)
     text_crypté = ''.join(str(message_crypté))
     message_décrypter = decrypt(message_crypté, private_key)
-    print(message_décrypter)
     text_décrypté = ''.join(message_décrypter)
 
     print(f'Le message envoyé : {text_crypté}')
