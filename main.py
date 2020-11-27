@@ -25,7 +25,7 @@ context = "Bob veut envoyer un message d\'amour à Alice sans que personne " \
             "clé publique qu\'elle laissera sur son casier. Bob utilisera la " \
             "clé publique pour crypter son message. Pour créer les clés, Alice " \
             "doit choisir deux grands nombres premiers."
-prime_context = "Choisissez deux nombres (entier entre 20 et 500) le programme " \
+prime_context = "Choisissez deux nombres (entier entre 20 et 5000) le programme " \
                 "trouvera le prochain nombre qui est premier."
 text_number_1 = 'Votre premier nombre : '
 text_number_2 = 'Votre deuxième nombre : '
