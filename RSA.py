@@ -19,7 +19,7 @@ def num_condition(number):
     except ValueError:
         message.append("Ce n'est pas un nombre")
         return [condition, message]
-    if number >= 5000:
+    if number >= 50000:
         message.append("Nombre trop grand")
     if number < 20:
         message.append("Nombre trop petit")
@@ -272,12 +272,3 @@ def justify(text, width=70, sep=' ', justify_last_line=False):
                 # Resets counter to start at word before final space, if we've stepped through the list once
                 counter = -2
     return new_text
-
-
-pp = 100000
-ppp = 100000
-nn = pp*ppp
-ll = len(str(184787))
-print(ll)
-print(2**ll - 1)
-print(find_coprime(64, 180240))
