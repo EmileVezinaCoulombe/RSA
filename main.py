@@ -51,7 +51,10 @@ if __name__ == "__main__":
 
     prime_1 = find_prime(number_1)
     prime_2 = find_prime(number_2)
-    public_key, private_key, phi = gen_keys(prime_1, prime_2)
+    digit_lenght = prime_1*prime_2
+    if digit_lenght < 400:
+        digit_lenght = 1
+    public_key, private_key, phi = gen_keys(prime_1, prime_2, 2*len(str(digit_lenght)))
     e, n = public_key
     d = private_key[0]
 
@@ -68,11 +71,13 @@ if __name__ == "__main__":
     message = input('Message d\'amour : ')
 
     message_crypté = encrypt(message, public_key)
-    text_crypté = ''.join(str(message_crypté))
+    text_crypté = ''.join(str(mot) for mot in message_crypté)
+    hexa_text_crypté = hex(int(text_crypté))
     message_décrypter = decrypt(message_crypté, private_key)
     text_décrypté = ''.join(message_décrypter)
 
-    print(f'Le message envoyé : {text_crypté}')
+
+    print(f'Le message envoyé en hexadécimale : {hexa_text_crypté}')
 
     print(context_decrypt_justified)
     print(f'Le message reçu : {text_décrypté}')

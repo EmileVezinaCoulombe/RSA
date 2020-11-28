@@ -125,68 +125,55 @@ def period(arg, n, exponent = 1,count = 1):
 def mod_inverse(e, phi, n):
     """
     Fonction détermine l'inverse modulaire.
-    Prend en agrument e, phi.
+    Prend en agrument e, phi, n.
         trouve le multiple d pour que (e*d)%phi =1
     Retourne d.
     """
-    for d in range(1, n):
-        if (e*d) % phi == 1 and d != e:
+    for d in range(n):
+        if (((e*d) % phi) == 1 and d != e):
             return d
     return -1
 
 
-def gen_phi(p, q):
-    """
-    Génère phi_n = (p - 1)*(q - 1)
-    phi est le nombre de facteurs co-premier avec N
-    """
-    return (p - 1)*(q - 1)
 
-
-def coprime(e, phi):
-    if gcd(e, phi_n) == 1:
-        return True
-    return False
-
-
-def gen_pseudo_e(phi, e = 2, bit_lenght = 1):
+def find_coprime(e, phi):
     """
-    Fonction génaire un e temporaire.
-    Prend en agrument e, phi et une longeure min en nombre de bit pour e.
-    La convertion bit_lenght(b) et digit(n) : b = log_2(n + 1)
-                                                n = 2**b - 1
-    Retourne e.
+    Fonction retourne un nombre e co-premier à phi.
+    Prend en argument e, phi.
+        retourne -1 si e > phi
+    Retourne e
     """
-    if e < (2**bit_lenght - 1):
-        e = 2**bit_lenght
-    if e > phi:
+    if e >= phi:
         return -1
-    if gcd(e, phi) == 1 and e < phi:
+    if gcd(e, phi) == 1:
         return e
+    return find_coprime(e+1, phi)
 
-    return gen_pseudo_e(phi, e+1, bit_lenght)
 
-
-def gen_e_d(n, phi, bit_lenght = 1, e = 2):
+def gen_e_d(n, phi, bit_lenght = 2, e = 4):
     """
-    Fonction génaire un e et d.
-    Prend en agrument e, phi et une longeure min en nombre de bit pour e.
-        génaire un d puis un e et regarde les conditions
+    Fonction génère un e et d.
+    Prend en agrument n, phi, bit_leght, e où bit_lenght
+                est une longeure min en nombre de bit pour e.
+        génère un e puis un d et regarde les conditions
         si incapable de générer e et d lève une erreur 
     Retourne tuple (e, d).
     """
-    e = gen_pseudo_e(phi, bit_lenght, e)
+    if e <= (2**bit_lenght - 1):
+        e = 2**bit_lenght
+
+    e = find_coprime(e, phi)
     d = mod_inverse(e, phi, n)
-    if gcd(e, phi) == 1 and e != d and d != -1 and e != -1:
+    if  d != -1 and e != -1:
         return (e, d)
     if d == -1 and e == -1:
         raise Exception("La création de e et d est imposible, choisisez d'autres p et q")
     return gen_e_d(phi, bit_lenght, e+1)
 
 
-def gen_keys(p, q, bit_lenght = 1):
+def gen_keys(p, q, bit_lenght = 2):
     """
-    Fonction génaire les clés.
+    Fonction génère les clés.
     Prend en agrument p, q et un longeur min en nb de bit.
         trouve n
         trouve phi
@@ -194,7 +181,7 @@ def gen_keys(p, q, bit_lenght = 1):
     Retourne tuple ((e, n), (d, n)).
     """
     n = p*q
-    phi = gen_phi(p, q)
+    phi = (p - 1)*(q - 1)
     try:
         e, d = gen_e_d(n, phi, bit_lenght)
         return ((e, n), (d, n), phi)
@@ -213,7 +200,7 @@ def encrypt(message, public_key):
         ex: ['32', '103', '98']
     """
     e, n = public_key
-    return [pow(ord(lettre), e, n) for lettre in message]
+    return list([pow(ord(lettre), e, n) for lettre in message])
 
 
 def decrypt(msg_crypt, private_key):
@@ -285,3 +272,12 @@ def justify(text, width=70, sep=' ', justify_last_line=False):
                 # Resets counter to start at word before final space, if we've stepped through the list once
                 counter = -2
     return new_text
+
+
+pp = 100000
+ppp = 100000
+nn = pp*ppp
+ll = len(str(184787))
+print(ll)
+print(2**ll - 1)
+print(find_coprime(64, 180240))
