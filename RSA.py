@@ -19,7 +19,7 @@ def num_condition(number):
     except ValueError:
         message.append("Ce n'est pas un nombre")
         return [condition, message]
-    if number >= 50000:
+    if number >= 5000:
         message.append("Nombre trop grand")
     if number < 20:
         message.append("Nombre trop petit")
